@@ -1,7 +1,6 @@
 
 package org.sunbird.scoringengine.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +18,11 @@ import org.sunbird.scoringengine.service.ScoringEngineService;
 @RequestMapping("/v1")
 public class ScoringController {
 
-    @Autowired
-    ScoringEngineService scoringEngineService;
+    private final ScoringEngineService scoringEngineService;
+
+    public ScoringController(ScoringEngineService scoringEngineService) {
+        this.scoringEngineService = scoringEngineService;
+    }
 
     @PostMapping("/add")
     public ResponseEntity<Response> add(@RequestBody EvaluatorModel evaluatorModel, @RequestHeader String rootOrg,

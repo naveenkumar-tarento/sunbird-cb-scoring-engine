@@ -2,11 +2,8 @@
 
 package org.sunbird.scoringengine.schema.model;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
-
 public class Range {
 
-    @Ignore
     private String name;
     private Integer min;
     private Integer max;

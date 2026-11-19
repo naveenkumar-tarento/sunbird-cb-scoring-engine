@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.elasticsearch.rest.RestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -36,11 +35,14 @@ import java.util.Optional;
 public class ScoringEngineServiceImpl implements ScoringEngineService {
 
 
-	@Autowired
-	private ScoringSchemaLoader schemaLoader;
+	private final ScoringSchemaLoader schemaLoader;
 
-	@Autowired
-	IndexerService indexerService;
+	private final IndexerService indexerService;
+
+	public ScoringEngineServiceImpl(ScoringSchemaLoader schemaLoader, IndexerService indexerService) {
+		this.schemaLoader = schemaLoader;
+		this.indexerService = indexerService;
+	}
 
 	private ObjectMapper mapper = new ObjectMapper();
 	@Value("${es.score.index}")
