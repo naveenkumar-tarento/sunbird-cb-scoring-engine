@@ -27,7 +27,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
@@ -66,10 +65,10 @@ public class IndexerService {
         logger.info("#INITIALIZING SCORE INDEXER");
         HttpHost[] hosts = new HttpHost[1];
         hosts[0] = new HttpHost(esHost, Integer.parseInt(esPort));
-        logger.info("  " + esHost);
-        logger.info("  " + esPort);
-        logger.info("  " + esUsername);
-        logger.info("  " + esPassword);
+        logger.info("  {}", esHost);
+        logger.info("  {}", esPort);
+        logger.info("  {}", esUsername);
+        logger.info("  {}", esPassword);
         RestClientBuilder builder = RestClient.builder(hosts);
         if (esAuthEnabled) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -99,7 +98,7 @@ public class IndexerService {
         boolean getLatestRecord = (boolean)searchQuery.get("isGetLatestRecordEnabled");
         searchQuery.remove("isGetLatestRecordEnabled");
         BoolQueryBuilder query = buildQuery(searchQuery);
-        logger.info("Search query " + new ObjectMapper().writeValueAsString(query));
+        logger.info("Search query {}", new ObjectMapper().writeValueAsString(query));
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().query(query);
         if(getLatestRecord){
             sourceBuilder.sort(SortBuilders.fieldSort("timeStamp.keyword").order(SortOrder.DESC));
@@ -114,7 +113,9 @@ public class IndexerService {
             JsonNode node = mapper.readValue(hit.getSourceAsString(), JsonNode.class);
             resultArray.add(node);
         }
-        logger.debug("Total search records found " + resultArray.size());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Total search records found {}", resultArray.size());
+        }
 
         return resultArray;
 
@@ -126,7 +127,7 @@ public class IndexerService {
         for ( Map.Entry<String, Object> filter : searchQuery.entrySet()) {
             String field = filter.getKey();
             Object value = filter.getValue();
-            boolean emptyValue = (value instanceof String) ? ((String) value).isEmpty() : false;
+            boolean emptyValue = (value instanceof String) && ((String) value).isEmpty();
             if(value != null && !emptyValue) query = query.must(QueryBuilders.matchQuery(field, value));
         }
         return query;

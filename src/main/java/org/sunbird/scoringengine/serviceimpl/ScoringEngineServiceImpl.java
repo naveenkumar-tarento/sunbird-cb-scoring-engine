@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.elasticsearch.rest.RestStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,7 +24,6 @@ import org.sunbird.scoringengine.util.ComputeScores;
 import org.sunbird.scoringengine.util.IndexerService;
 import org.sunbird.scoringengine.util.ScoringSchemaLoader;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -56,19 +53,19 @@ public class ScoringEngineServiceImpl implements ScoringEngineService {
 
 	@Value("${es.scoring.enabled}")
 	private boolean esScoringEnabled;
-	
-	public SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	private Logger logger = LoggerFactory.getLogger(ScoringEngineServiceImpl.class);
 
 	private static final String[] ignorableFields = {"rootOrg", "org", "version", "weightage", "max_score", "min_acceptable_score",
 			"fixed_score", "range_score", "modify_max_score", "10-20", "20-30", "30-40", "modify_max_score", "max_score_modify_value",
 			"min_score_weightage_enable", "min_score_weightage", "score_grades", "isQualifiedMinCriteria", "status_on_min_criteria", "disqualifyOption"};
 
+	private static final String MESSAGE_KEY = "Message";
+	private static final String SUCCESS_MESSAGE = "Successfully operation";
+
 	@Override
 	public Response addV3(EvaluatorModel evaluatorModel) throws Exception {
 		Response response = new Response();
 		try {
-			String templateId = (evaluatorModel.getTemplateId() == null || evaluatorModel.getTemplateId().isEmpty()) == true ? scoringTemplateId
+			String templateId = (evaluatorModel.getTemplateId() == null || evaluatorModel.getTemplateId().isEmpty()) ? scoringTemplateId
 			: evaluatorModel.getTemplateId();
 
 			Optional<ScoringTemplate> scoringTemplateOptional = schemaLoader.getScoringSchema().getScoringTemplates().stream().filter(t -> t.getTemplate_id().equals(templateId)).findFirst();
@@ -91,10 +88,9 @@ public class ScoringEngineServiceImpl implements ScoringEngineService {
 				response.put("result", evaluatorModel);
 			}
 
-			response.put("Message", "Successfully operation");
+			response.put(MESSAGE_KEY, SUCCESS_MESSAGE);
 
 		} catch (Exception e) {
-			logger.error("Error occurred while adding score", e);
 			throw new Exception(e);
 		}
 
@@ -119,10 +115,9 @@ public class ScoringEngineServiceImpl implements ScoringEngineService {
 			JsonNode searchResponse= indexerService.search(esIndex, searchQuery);
 
 			response.put("resources", searchResponse);
-			response.put("Message", "Successfully operation");
+			response.put(MESSAGE_KEY, SUCCESS_MESSAGE);
 
 		} catch (Exception e){
-			logger.error("Error occurred while searching score", e);
 			throw new Exception(e);
 		}
 
@@ -139,12 +134,12 @@ public class ScoringEngineServiceImpl implements ScoringEngineService {
 		if(!scoringTemplateOptional.isPresent())
 			throw new BadRequestException("Template is not found on given template id");
 		ScoringTemplate scoringTemplate = scoringTemplateOptional.get();
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.addMixIn(Object.class, PropertyFilterMixIn.class);
+		ObjectMapper templateMapper = new ObjectMapper();
+		templateMapper.addMixIn(Object.class, PropertyFilterMixIn.class);
 		FilterProvider filters = new SimpleFilterProvider().addFilter("filter properties by name",SimpleBeanPropertyFilter.serializeAllExcept(ignorableFields));
-		ObjectWriter writer = mapper.writer(filters);
-		response.put("result", mapper.readValue(writer.writeValueAsString(scoringTemplate), Object.class));
-		response.put("Message", "Successfully operation");
+		ObjectWriter writer = templateMapper.writer(filters);
+		response.put("result", templateMapper.readValue(writer.writeValueAsString(scoringTemplate), Object.class));
+		response.put(MESSAGE_KEY, SUCCESS_MESSAGE);
 		response.put("resources", HttpStatus.OK);
 		return response;
 	}

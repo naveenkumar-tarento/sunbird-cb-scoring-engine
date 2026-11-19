@@ -12,7 +12,7 @@ public class Response implements Serializable, Cloneable {
 	private String id;
 	private String ver;
 	private String ts;
-	private Map<String, Object> result = new HashMap<>();
+	private transient Map<String, Object> result = new HashMap<>();
 
 	public String getId() {
 		return id;

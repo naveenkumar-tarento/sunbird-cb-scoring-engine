@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Criteria {
 
-    private String criteria;
+    private String criteriaName;
     private Double weightage;
     private Double max_score;
     private Double min_acceptable_score;
@@ -20,11 +20,11 @@ public class Criteria {
     private Double min_score_weightage;
 
     public String getCriteria() {
-        return criteria;
+        return criteriaName;
     }
 
     public void setCriteria(String criteria) {
-        this.criteria = criteria;
+        this.criteriaName = criteria;
     }
 
     public Double getWeightage() {

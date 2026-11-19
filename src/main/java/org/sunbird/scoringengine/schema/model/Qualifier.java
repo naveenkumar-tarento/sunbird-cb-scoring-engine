@@ -2,16 +2,13 @@
 
 package org.sunbird.scoringengine.schema.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 public class Qualifier {
 
-    private String qualifier;
+    private String qualifierName;
     private String description;
     private Double weightage;
     private Double max_score;
@@ -29,11 +26,11 @@ public class Qualifier {
     private List<String> disqualifyOption = new ArrayList<>();
 
     public String getQualifier() {
-        return qualifier;
+        return qualifierName;
     }
 
     public void setQualifier(String qualifier) {
-        this.qualifier = qualifier;
+        this.qualifierName = qualifier;
     }
 
     public Double getWeightage() {

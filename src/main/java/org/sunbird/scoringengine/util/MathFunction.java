@@ -1,13 +1,14 @@
 
 package org.sunbird.scoringengine.util;
 
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.OptionalDouble;
 
 
 public class MathFunction {
+
+    private MathFunction() {
+    }
 
     public static Double sum(List<Double> doubles){
 
@@ -51,9 +52,7 @@ public class MathFunction {
 
     public static Double minWeightedAvg(List<Double> doubles, double weigtage){
 
-        OptionalDouble maxValue = doubles.stream().mapToDouble(Double::doubleValue).max() ;
-        double count = doubles.stream().mapToDouble(Double::doubleValue).count();
-        return  (maxValue.getAsDouble() * count) * weigtage;
+        return maxWeightedAvg(doubles, weigtage);
     }
 
     public static Double weightedScore(double totalValue, double maxvalue, double weigtage) {
