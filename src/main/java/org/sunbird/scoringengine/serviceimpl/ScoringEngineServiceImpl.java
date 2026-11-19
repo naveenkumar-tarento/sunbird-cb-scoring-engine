@@ -94,7 +94,7 @@ public class ScoringEngineServiceImpl implements ScoringEngineService {
 			response.put("Message", "Successfully operation");
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error occurred while adding score", e);
 			throw new Exception(e);
 		}
 
@@ -122,7 +122,7 @@ public class ScoringEngineServiceImpl implements ScoringEngineService {
 			response.put("Message", "Successfully operation");
 
 		} catch (Exception e){
-			e.printStackTrace();
+			logger.error("Error occurred while searching score", e);
 			throw new Exception(e);
 		}
 
