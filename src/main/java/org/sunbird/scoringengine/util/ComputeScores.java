@@ -63,30 +63,7 @@ public class ComputeScores {
 
             Map<String, Map<String, Integer>> qualifierFixedScores = criteria.getQualifiers().stream().collect(Collectors.toMap(Qualifier::getQualifier, Qualifier::getFixed_score));
             Map<String, Map<String, Range>> qualifierRangeScores = criteria.getQualifiers().stream().collect(Collectors.toMap(Qualifier::getQualifier, Qualifier::getRange_score));
-            int maxScoreExcludedValue = 0;
-            for (QualifierModel qm : cm.getQualifiers()) {
-                if (qm.getEvaluated() != null) {
-                    int score = qualifierFixedScores.get(qm.getName()).get(qm.getEvaluated());
-                    qm.setScoreValue(score);
-                    qm.setScoringType("fixed");
-                }
-                else {
-                    Range range = qualifierRangeScores.get(qm.getName()).get(qm.getScoreRange());
-                    qm.setScoreValue(range.getAssignedValue());
-                    qm.setScoringType("ranged");
-
-                }
-
-                if (Boolean.TRUE.equals(qualifierMap.get(qm.getName()).getModify_max_score()) &&
-                        qualifierMap.get(qm.getName()).getMax_score_modify_value().containsKey(qm.getEvaluated())) {
-                    maxScoreExcludedValue += qualifierMap.get(qm.getName()).getMax_score_modify_value().get(qm.getEvaluated());
-                }
-                qm.setDescription(qualifierMap.get(qm.getName()).getDescription());
-                if (evaluatorModel.isQualified() && !CollectionUtils.isEmpty(qualifierMap.get(qm.getName()).getDisqualifyOption())
-                        && qualifierMap.get(qm.getName()).getDisqualifyOption().contains(qm.getEvaluated())) {
-                    evaluatorModel.setQualified(false);
-                }
-            }
+            int maxScoreExcludedValue = applyQualifierScores(cm, evaluatorModel, qualifierMap, qualifierFixedScores, qualifierRangeScores);
             cm.setMaxScore(cm.getMaxScore() - maxScoreExcludedValue);
             if (Boolean.TRUE.equals(criteria.getMin_score_weightage_enable())) {
                 cm.setMinScore(cm.getMaxScore() * criteria.getMin_score_weightage());
@@ -129,6 +106,35 @@ public class ComputeScores {
         long millsec = System.currentTimeMillis();
         evaluatorModel.setIdentifier(identifierPrefix + millsec);
 
+    }
+
+    private int applyQualifierScores(CriteriaModel cm, EvaluatorModel evaluatorModel, Map<String, Qualifier> qualifierMap,
+                                      Map<String, Map<String, Integer>> qualifierFixedScores, Map<String, Map<String, Range>> qualifierRangeScores) {
+        int maxScoreExcludedValue = 0;
+        for (QualifierModel qm : cm.getQualifiers()) {
+            if (qm.getEvaluated() != null) {
+                int score = qualifierFixedScores.get(qm.getName()).get(qm.getEvaluated());
+                qm.setScoreValue(score);
+                qm.setScoringType("fixed");
+            }
+            else {
+                Range range = qualifierRangeScores.get(qm.getName()).get(qm.getScoreRange());
+                qm.setScoreValue(range.getAssignedValue());
+                qm.setScoringType("ranged");
+
+            }
+
+            if (Boolean.TRUE.equals(qualifierMap.get(qm.getName()).getModify_max_score()) &&
+                    qualifierMap.get(qm.getName()).getMax_score_modify_value().containsKey(qm.getEvaluated())) {
+                maxScoreExcludedValue += qualifierMap.get(qm.getName()).getMax_score_modify_value().get(qm.getEvaluated());
+            }
+            qm.setDescription(qualifierMap.get(qm.getName()).getDescription());
+            if (evaluatorModel.isQualified() && !CollectionUtils.isEmpty(qualifierMap.get(qm.getName()).getDisqualifyOption())
+                    && qualifierMap.get(qm.getName()).getDisqualifyOption().contains(qm.getEvaluated())) {
+                evaluatorModel.setQualified(false);
+            }
+        }
+        return maxScoreExcludedValue;
     }
 
     /**
