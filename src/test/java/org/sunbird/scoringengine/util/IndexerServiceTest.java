@@ -41,7 +41,7 @@ public class IndexerServiceTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         indexerService = new IndexerService();
         ReflectionTestUtils.setField(indexerService, "esClient", esClient);
     }

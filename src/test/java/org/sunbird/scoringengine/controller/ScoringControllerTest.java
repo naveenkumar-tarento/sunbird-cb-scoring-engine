@@ -24,7 +24,7 @@ public class ScoringControllerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         scoringController = new ScoringController(scoringEngineService);
     }
 

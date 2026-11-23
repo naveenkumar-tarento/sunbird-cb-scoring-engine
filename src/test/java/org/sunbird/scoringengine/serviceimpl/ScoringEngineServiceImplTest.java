@@ -42,7 +42,7 @@ public class ScoringEngineServiceImplTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         service = new ScoringEngineServiceImpl(schemaLoader, indexerService);
         ReflectionTestUtils.setField(service, "esIndex", "scorecard_index");
         ReflectionTestUtils.setField(service, "esIndexType", "resources");
